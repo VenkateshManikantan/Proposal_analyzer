@@ -68,6 +68,49 @@ def main():
     
     if run:
         embedding_function = OpenAIEmbeddings()
+
+        template ="""
+        Your objective is to analyze wheather a proposal meets the PRE-QUALIFICATION/ ELIGIBILITY CRITERIA mentioned with a RFP
+    
+
+        Please refer to the following RFP's PRE-QUALIFICATION/ ELIGIBILITY CRITERIA statement: 
+
+        {RFP}
+
+        Please refer to the following proposal submited by the vendor:
+
+        {Proposal}
+
+        Please let us know for every eligibility criteria mentioned how does the proposal meets this criteria. If a proposal does not meet please let us know that as well 
+        A.
+        """
+
+        prompt = PromptTemplate(input_variables=["RFP","Proposal"],template = template)
+
+        DB_FAISS_PATH_1 = "vectorstore\\RFP\\"
+        rfp_db = FAISS.load_local(DB_FAISS_PATH_1, embedding_function,allow_dangerous_deserialization=True)
+        query_1 = "Get me the points of the PRE-QUALIFICATION/ ELIGIBILITY CRITERIA in the documents"
+        docs_1 = rfp_db.similarity_search(query_1 , k = 4)
+        context1_rfp = docs_1[0].page_content + docs_1[1].page_content + docs_1[2].page_content + docs_1[3].page_content
+
+        DB_FAISS_PATH_2 = "vectorstore\\Proposals\\"
+        p_db = FAISS.load_local(DB_FAISS_PATH_2, embedding_function,allow_dangerous_deserialization = True)
+        query_2 = "Information about organization history and background. Along with any eligibility criteria mentiond by them"
+        docs_2 = p_db.similarity_search(query_2 , k = 4)
+        context2_proposals = docs_2[0].page_content + docs_2[1].page_content + docs_2[2].page_content + docs_2[3].page_content
+
+
+        Objective = LLMChain(
+            llm=ChatOpenAI(temperature=0, model="gpt-3.5-turbo"),
+            prompt=prompt,
+            output_key="solutions")
+        
+        st.header("Eligiblity:")
+        st.write(Objective.predict(RFP = context1_rfp, Proposal = context2_proposals))
+
+
+
+
         template ="""
         Your objective is to analyze the objective portion of an RFP with a proposal and give your inputs to the company wheather the vendor has met the criteria of the RFP.
     
