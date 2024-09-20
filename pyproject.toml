@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "proposal-analyzer"
+version = "0.1.0"
+description = "Contract Gen-AI Analyzer"
+authors = ["Venkatesh Manikantan <venkateshvishwanath99@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+langchain = "^0.3.0"
+faiss-cpu = "^1.8.0.post1"
+langchain-openai = "^0.2.0"
+pypdf = "^5.0.0"
+streamlit = "^1.38.0"
+load-dotenv = "^0.1.0"
+langchain-community = "^0.3.0"
+pymupdf = "^1.24.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

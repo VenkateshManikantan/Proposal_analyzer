@@ -1,7 +1,7 @@
 import tempfile
 import warnings
 import streamlit as st 
-
+from dotenv import load_dotenv
 from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.document_loaders import PyMuPDFLoader
@@ -17,29 +17,25 @@ warnings.filterwarnings("ignore")
 st.set_page_config(layout="wide")
 
 with st.sidebar:
-    st.image("images//pwc.png")  
-    open_ai_api = st.text_input('Open AI API', 'Enter your open AI API key')
-    if not open_ai_api.startswith('sk-'):
-                st.error("Please enter a valid OpenAI API key.")
-                api_keys_entered = False
+    st.image("images//PwC copy.png")  
+    
 
-os.environ['OPENAI_API_KEY'] = open_ai_api
+load_dotenv()
+os.environ['OPENAI_API_KEY'] = os.getenv('OPEN_AI_API_KEY_2')
+    
 def main():
 
-    st.title("Proposal Analyzer")
+    st.title("Contract Analyzer")
 
-    c1,c2,c3= st.columns(3)
-
-    with c1:
-        upload_rfp = st.file_uploader("Upload a RFP (PDF)")
+    
+    upload_rfp = st.file_uploader("Upload your Contract")
+    c2,c3= st.columns(2)
     with c2:
-        upload_p = st.file_uploader("Upload a Proposal (PDF)")
+        upsert = st.button("Upsert Vector DB", type="primary",use_container_width=True)
     with c3:
-        upsert = st.button("Upsert Vector DB", type="primary")
-        run    = st.button("Run", type="primary")
+        run    = st.button("Summarize your Document", type="primary",use_container_width=True)
     
     if upsert:
-
         with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
             tmp_file.write(upload_rfp.getvalue())
             tmp_file_path_1 = tmp_file.name
@@ -197,5 +193,14 @@ def main():
         st.header("Methodology:")
         st.write(Objective.predict(RFP = context1_rfp, Proposal = context2_proposals))
 
+
+     
+home_page = st.Page(main, title="Contract Analyzer")
+### CSV Agent Pages ###
+doc_tag = st.Page("other_pages/doc_tagging.py", title="Extract Tagging")
+doc_comp = st.Page("other_pages/doc_compare.py", title="Compare Contract")
+
+
+pg = st.navigation({"Document Intelligence": [home_page,doc_tag,doc_comp]})
 if __name__=="__main__":
     main()
